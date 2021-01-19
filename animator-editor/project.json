@@ -1,0 +1,7 @@
+{
+  "engine": "cocos-creator-js",
+  "packages": "packages",
+  "name": "AnimatorEditor",
+  "id": "a5e4f90a-248e-4457-96a6-800514ebfaf2",
+  "version": "2.2.2"
+}

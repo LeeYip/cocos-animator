@@ -1,0 +1,57 @@
+{
+  "group-list": [
+    "default"
+  ],
+  "collision-matrix": [
+    [
+      true
+    ]
+  ],
+  "excluded-modules": [
+    "Audio",
+    "AudioSource",
+    "Dynamic Atlas",
+    "DragonBones",
+    "Geom Utils",
+    "Mesh",
+    "MotionStreak",
+    "Native Socket",
+    "Physics",
+    "PageView",
+    "PageViewIndicator",
+    "ParticleSystem",
+    "RichText",
+    "Renderer Texture",
+    "Spine Skeleton",
+    "StudioComponent",
+    "TiledMap",
+    "VideoPlayer",
+    "WebView",
+    "3D",
+    "3D Primitive"
+  ],
+  "last-module-event-record-time": 1611038480856,
+  "design-resolution-width": 960,
+  "design-resolution-height": 640,
+  "fit-width": false,
+  "fit-height": true,
+  "use-project-simulator-setting": false,
+  "simulator-orientation": false,
+  "use-customize-simulator": true,
+  "simulator-resolution": {
+    "height": 640,
+    "width": 960
+  },
+  "assets-sort-type": "name",
+  "facebook": {
+    "appID": "",
+    "audience": {
+      "enable": false
+    },
+    "enable": false,
+    "live": {
+      "enable": false
+    }
+  },
+  "start-scene": "current"
+}
