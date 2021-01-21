@@ -1,13 +1,12 @@
-# 仿Unity Animator可视化动画状态机编辑器
+# Cocos Animator
+一个用于Cocos Creator的可视化动画状态机编辑器。<br/>
+编辑器地址：https://leeyip.github.io/cocos-animator/
 
-## TODO
-- [ ] 加载界面
-- [ ] 导入animation、spine、dragon bone文件生成状态节点
-- [x] 选中状态节点时，可更改transition排序，用于决定优先级（inspector中的transition显示需要做特殊表现用以表示此时可以进行排序）
-- [x] 状态节点与子状态机节点可以拖入到子状态机节点内，需解决跨越多层连线的问题
-- [x] 连向状态机的连线选项显示多层状态
-- [ ] 优化ui与代码、drawcall
-- [ ] *?每个状态机的entry和exit，状态机和状态一样也可以绑定逻辑脚本*
+## 目录
+
+## 前言
+
+## 使用
 
 ## 注意点
 - 参数名、子状态机名、状态名都不可重名
@@ -16,8 +15,8 @@
 - 当transition未勾选hasExitTime以及没有添加任何condition时，transition会被忽略
 - Parameters和Inspector两个界面如果内容超出，使用鼠标滚轮滚动，因为为了防止与拖拽行为产生冲突，触摸事件已被屏蔽
 
-## 文件格式
-### 1. 编辑器工程文件格式
+## 数据格式
+### 1. 编辑器工程数据格式
 ```
 {
     /** 编辑器版本号 */
@@ -121,7 +120,7 @@
 }
 ```
 
-### 2. runtime解析所需的文件格式
+### 2. runtime解析所需的数据格式
 ```
 {
     parameters: [

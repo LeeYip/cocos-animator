@@ -1,7 +1,9 @@
+import Tool from "../common/util/Tool";
 import FsmCtr from "./fsm/FsmCtr";
 import InspectorCtr from "./inspector/InspectorCtr";
 import Menu from "./menu/Menu";
 import ParamCtr from "./parameters/ParamCtr";
+import Setting from "./Setting";
 
 const { ccclass, property } = cc._decorator;
 
@@ -9,7 +11,7 @@ const { ccclass, property } = cc._decorator;
 export default class Editor extends cc.Component {
     @property(FsmCtr) Fsm: FsmCtr = null;
     @property(InspectorCtr) Inspector: InspectorCtr = null;
-    @property(ParamCtr) ParamCtr: ParamCtr = null;
+    @property(ParamCtr) Parameters: ParamCtr = null;
     @property(Menu) Menu: Menu = null;
 
     public static Inst: Editor = null;
@@ -18,6 +20,15 @@ export default class Editor extends cc.Component {
     private _keySet: Set<cc.macro.KEY> = new Set();
 
     protected onLoad() {
+        // 初始化界面宽度
+        Setting.read();
+        this.Inspector.node.width = Setting.inspectorWidth;
+        this.Inspector.getComponent(cc.Widget).updateAlignment();
+        Tool.updateWidget(this.Inspector.node);
+        this.Parameters.node.width = Setting.parametersWidth;
+        this.Parameters.getComponent(cc.Widget).updateAlignment();
+        Tool.updateWidget(this.Parameters.node);
+
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     }
@@ -33,8 +44,8 @@ export default class Editor extends cc.Component {
         switch (event.keyCode) {
             case cc.macro.KEY.s:
                 if (this._keySet.has(cc.macro.KEY.ctrl)) {
-                    // 保存工程文件
-                    this.saveProject();
+                    // 导出工程文件
+                    this.exportProject();
                 }
                 break;
             case cc.macro.KEY.e:
@@ -56,15 +67,15 @@ export default class Editor extends cc.Component {
         this._keySet.delete(event.keyCode);
     }
 
-    private saveProject() {
+    private exportProject() {
         let data: any = this.Fsm.exportProject();
-        data.parameters = this.ParamCtr.export();
+        data.parameters = this.Parameters.export();
         this.save('animator.json', data);
     }
 
     private exportRuntimeData() {
         let data: any = this.Fsm.exportRuntimeData();
-        data.parameters = this.ParamCtr.export();
+        data.parameters = this.Parameters.export();
         this.save('runtimeData.json', data);
     }
 
@@ -82,17 +93,5 @@ export default class Editor extends cc.Component {
         eleLink.click();
         // 移除
         document.body.removeChild(eleLink);
-    }
-
-    /**
-     * 导入工程文件
-     */
-    public importProject(data: any) {
-        if (!data.hasOwnProperty('animator')) {
-            return;
-        }
-
-        this.ParamCtr.import(data.parameters);
-        this.Fsm.importProject(data);
     }
 }

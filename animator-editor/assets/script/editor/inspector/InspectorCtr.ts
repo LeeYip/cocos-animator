@@ -2,6 +2,7 @@ import DragList from "../../common/cmpt/DragList";
 import Events, { EventName, preloadEvent } from "../../common/util/Events";
 import RecyclePool from "../../common/util/RecyclePool";
 import Res from "../../common/util/Res";
+import Tool from "../../common/util/Tool";
 import { ResUrl } from "../../constant/ResUrl";
 import Transition from "../data/Transition";
 import Editor from "../Editor";
@@ -129,6 +130,7 @@ export default class InspectorCtr extends cc.Component {
         let prefab = Res.getLoaded(ResUrl.PREFAB.TRANSITION_ITEM);
         let node: cc.Node = RecyclePool.get(TransitionItem) || cc.instantiate(prefab);
         node.width = this.TransitionList.node.width;
+        Tool.updateWidget(node);
         return node;
     }
 
@@ -141,6 +143,7 @@ export default class InspectorCtr extends cc.Component {
         let prefab = Res.getLoaded(ResUrl.PREFAB.CONDITION_ITEM);
         let node: cc.Node = RecyclePool.get(ConditionItem) || cc.instantiate(prefab);
         node.width = this.ConditionList.node.width;
+        Tool.updateWidget(node);
         return node;
     }
 
@@ -300,10 +303,7 @@ export default class InspectorCtr extends cc.Component {
         if (!(this._unit instanceof UnitState)) {
             return;
         }
-        let target = event.target;
-        let worldPos = target.parent.convertToWorldSpaceAR(target.position);
-        worldPos.y -= target.height / 2;
-        Events.emit(EventName.SHOW_MULTIPLIER, worldPos);
+        Events.emit(EventName.SHOW_MULTIPLIER, event.target);
     }
 
     private onClickDeleteTransition() {
@@ -338,11 +338,11 @@ export default class InspectorCtr extends cc.Component {
         if (!this._transitionItem) {
             return;
         }
-        if (Editor.Inst.ParamCtr.ParamContent.childrenCount <= 0) {
+        if (Editor.Inst.Parameters.ParamContent.childrenCount <= 0) {
             return;
         }
 
-        let paramItem: ParamItem = Editor.Inst.ParamCtr.ParamContent.children[0].getComponent(ParamItem);
+        let paramItem: ParamItem = Editor.Inst.Parameters.ParamContent.children[0].getComponent(ParamItem);
         let data = this._transitionItem.transition.addCondition(paramItem);
         let node = this.getConditionItem();
         this.ConditionList.node.addChild(node);
@@ -463,17 +463,21 @@ export default class InspectorCtr extends cc.Component {
         if (node !== this.node) {
             return;
         }
+
+        Tool.updateWidget(this.node, this.TransitionList.node, this.ConditionList.node);
         if (!this.TransitionInfo.active) {
             return;
         }
         this.TransitionList.node.children.forEach((e) => {
             e.width = this.TransitionList.node.width;
+            Tool.updateWidget(e);
         });
         if (!this.ConditionInfo.active) {
             return;
         }
         this.ConditionList.node.children.forEach((e) => {
             e.width = this.ConditionList.node.width;
+            Tool.updateWidget(e);
         });
     }
     //#endregion

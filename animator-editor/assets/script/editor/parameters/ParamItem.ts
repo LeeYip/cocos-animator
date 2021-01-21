@@ -89,7 +89,7 @@ export default class ParamItem extends cc.Component implements RecycleNode {
             return;
         }
 
-        this.NameEdit.string = Editor.Inst.ParamCtr.getParamName(this, this.NameEdit.string);
+        this.NameEdit.string = Editor.Inst.Parameters.getParamName(this, this.NameEdit.string);
         this.paramName = this.NameEdit.string;
     }
 

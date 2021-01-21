@@ -1,4 +1,5 @@
 import Events, { EventName, preloadEvent } from "../../common/util/Events";
+import Tool from "../../common/util/Tool";
 import { ANIMATOR_VERSION } from "../../constant/BaseConst";
 import Condition from "../data/Condition";
 import State from "../data/State";
@@ -57,210 +58,6 @@ export default class FsmCtr extends cc.Component {
             this.Cross.active = false;
         }
     }
-
-    //#region import and export
-    private importTransitions(transitionsData: any[], state: State, stateMap: Map<string, State>, paramMap: Map<string, ParamItem>) {
-        transitionsData.forEach((e) => {
-            let toState: State = stateMap.get(e.toState);
-            let transition: Transition = state.addTransition(toState);
-            transition.hasExitTime = e.hasExitTime;
-            e.conditions.forEach((cData) => {
-                let paramItem = paramMap.get(cData.param);
-                let condition: Condition = transition.addCondition(paramItem);
-                condition.value = cData.value;
-                condition.logic = cData.logic;
-            });
-        });
-    }
-
-    private importSubState(upData: any, upMachine: StateMachine, stateDataMap: Map<string, any>, stateMap: Map<string, State>, paramMap: Map<string, ParamItem>) {
-        upData.subStates.forEach((name: string) => {
-            let state = new State(upMachine, false);
-            stateMap.set(name, state);
-            let data = stateDataMap.get(name);
-            state.setPosition(data.position[0], data.position[1]);
-            state.name = data.state;
-            state.motion = data.motion;
-            state.speed = data.speed;
-            state.multiplierParam = paramMap.get(data.multiplier) || null;
-            state.loop = data.loop;
-
-            upMachine.add(state);
-        });
-    }
-
-    private importSubMachine(upData: any, upMachine: StateMachine, subMachineDataMap: Map<string, any>, subMachineMap: Map<string, StateMachine>, stateDataMap: Map<string, any>, stateMap: Map<string, State>, paramMap: Map<string, ParamItem>) {
-        upData.subStateMachines.forEach((name: string) => {
-            let stateMachine = new StateMachine(upMachine);
-            subMachineMap.set(name, stateMachine);
-            let data = subMachineDataMap.get(name);
-            stateMachine.setLayerPos(data.layerPos[0], data.layerPos[1]);
-            stateMachine.setLayerScale(data.layerScale);
-            stateMachine.setAnyStatePos(data.anyStatePos[0], data.anyStatePos[1]);
-            stateMachine.name = data.name;
-            stateMachine.setPosition(data.position[0], data.position[1]);
-            stateMachine.setUpStateMachinePos(data.upStateMachinePos[0], data.upStateMachinePos[1]);
-
-            upMachine.add(stateMachine);
-
-            this.importSubState(data, stateMachine, stateDataMap, stateMap, paramMap);
-            this.importSubMachine(data, stateMachine, subMachineDataMap, subMachineMap, stateDataMap, stateMap, paramMap);
-        });
-    }
-
-    private exportAllSubMachine(arr: any[], stateMachine: StateMachine) {
-        stateMachine.subStateMachines.forEach((sub) => {
-            let data = {
-                layerPos: [sub.layerPos.x, sub.layerPos.y],
-                layerScale: sub.layerScale,
-                anyStatePos: [sub.anyStatePos.x, sub.anyStatePos.y],
-                name: sub.name,
-                position: [sub.position.x, sub.position.y],
-                upStateMachine: sub.upStateMachine.name,
-                upStateMachinePos: [sub.upStateMachinePos.x, sub.upStateMachinePos.y],
-                subStates: [],
-                subStateMachines: [],
-            }
-            sub.subStates.forEach((e) => {
-                data.subStates.push(e.name);
-            });
-            sub.subStateMachines.forEach((e) => {
-                data.subStateMachines.push(e.name);
-            });
-            arr.push(data);
-            this.exportAllSubMachine(arr, sub);
-        });
-    }
-
-    private exportAllState(arr: any[], stateMachine: StateMachine, isRuntimeData: boolean = false) {
-        stateMachine.subStates.forEach((e) => {
-            let data = null;
-            if (isRuntimeData) {
-                data = {
-                    state: e.name,
-                    motion: e.motion,
-                    speed: e.speed,
-                    multiplier: e.getMultiplierName(),
-                    loop: e.loop,
-                    transitions: e.getAllTransitionData()
-                }
-            } else {
-                data = {
-                    position: [e.position.x, e.position.y],
-                    upStateMachine: e.upStateMachine.name,
-                    state: e.name,
-                    motion: e.motion,
-                    speed: e.speed,
-                    multiplier: e.getMultiplierName(),
-                    loop: e.loop,
-                    transitions: e.getAllTransitionData()
-                }
-            }
-            arr.push(data);
-        });
-        stateMachine.subStateMachines.forEach((sub) => {
-            this.exportAllState(arr, sub);
-        });
-    }
-
-    /**
-     * 导入工程数据
-     */
-    public importProject(data: any) {
-        let paramMap: Map<string, ParamItem> = Editor.Inst.ParamCtr.getParamMap();
-
-        let mainStateMachineData = data.mainStateMachine;
-        let subStateMachinesData = data.subStateMachines;
-        let defaultStateData: string = data.defaultState;
-        let anyStateData = data.anyState;
-        let statesData = data.states;
-
-        let stateDataMap: Map<string, any> = new Map();
-        statesData.forEach((e: any) => { stateDataMap.set(e.state, e); });
-        let stateMap: Map<string, State> = new Map();
-
-        let subMachineDataMap: Map<string, any> = new Map();
-        subStateMachinesData.forEach((e: any) => { subMachineDataMap.set(e.name, e) });
-        let subMachineMap: Map<string, StateMachine> = new Map();
-
-        let main = this.MachineLayer.mainStateMachine;
-        main.setLayerPos(mainStateMachineData.layerPos[0], mainStateMachineData.layerPos[1]);
-        main.setLayerScale(mainStateMachineData.layerScale);
-        main.setAnyStatePos(mainStateMachineData.anyStatePos[0], mainStateMachineData.anyStatePos[1]);
-        this.importSubState(mainStateMachineData, main, stateDataMap, stateMap, paramMap);
-        this.importSubMachine(mainStateMachineData, main, subMachineDataMap, subMachineMap, stateDataMap, stateMap, paramMap);
-
-        if (stateMap.has(defaultStateData))
-            this.MachineLayer.defaultState = stateMap.get(defaultStateData);
-
-        this.importTransitions(anyStateData.transitions, this.MachineLayer.anyState.state, stateMap, paramMap);
-        statesData.forEach((e: any) => {
-            let state: State = stateMap.get(e.state);
-            if (!state) {
-                cc.error('error');
-            }
-            this.importTransitions(e.transitions, state, stateMap, paramMap);
-        });
-
-        this.MachineLayer.setCurStateMachine();
-    }
-
-    /**
-     * 导出工程数据
-     */
-    public exportProject() {
-        let main = this.MachineLayer.mainStateMachine;
-        let animator = ANIMATOR_VERSION;
-        let mainStateMachine = {
-            layerPos: [main.layerPos.x, main.layerPos.y],
-            layerScale: main.layerScale,
-            anyStatePos: [main.anyStatePos.x, main.anyStatePos.y],
-            subStates: [],
-            subStateMachines: [],
-        };
-        main.subStates.forEach((e) => {
-            mainStateMachine.subStates.push(e.name);
-        });
-        main.subStateMachines.forEach((e) => {
-            mainStateMachine.subStateMachines.push(e.name);
-        });
-        let subStateMachines = [];
-        this.exportAllSubMachine(subStateMachines, main);
-
-        let defaultState: string = this.MachineLayer.defaultState ? this.MachineLayer.defaultState.name : '';
-        let anyState = {
-            transitions: this.MachineLayer.anyState.state.getAllTransitionData()
-        };
-        let states = [];
-        this.exportAllState(states, main);
-        return {
-            animator: animator,
-            mainStateMachine: mainStateMachine,
-            subStateMachines: subStateMachines,
-            defaultState: defaultState,
-            anyState: anyState,
-            states: states
-        };
-    }
-
-    /**
-     * 导出runtime数据
-     */
-    public exportRuntimeData() {
-        let main = this.MachineLayer.mainStateMachine;
-        let defaultState: string = this.MachineLayer.defaultState ? this.MachineLayer.defaultState.name : '';
-        let anyState = {
-            transitions: this.MachineLayer.anyState.state.getAllTransitionData()
-        };
-        let states = [];
-        this.exportAllState(states, main, true);
-        return {
-            defaultState: defaultState,
-            anyState: anyState,
-            states: states
-        };
-    }
-    //#endregion
 
     /**
      * 按下鼠标左键的处理
@@ -602,6 +399,255 @@ export default class FsmCtr extends cc.Component {
     @preloadEvent(EventName.SET_CUR_STATE_MACHINE)
     private onEventSetCurStateMachine(stateMachine: StateMachine) {
         this.setCurStateMachine(stateMachine);
+    }
+    //#endregion
+
+    //#region import and export
+    private importTransitions(transitionsData: any[], state: State, stateMap: Map<string, State>, paramMap: Map<string, ParamItem>) {
+        transitionsData.forEach((e) => {
+            let toState: State = stateMap.get(e.toState);
+            let transition: Transition = state.addTransition(toState);
+            transition.hasExitTime = e.hasExitTime;
+            e.conditions.forEach((cData) => {
+                let paramItem = paramMap.get(cData.param);
+                let condition: Condition = transition.addCondition(paramItem);
+                condition.value = cData.value;
+                condition.logic = cData.logic;
+            });
+        });
+    }
+
+    private importSubState(upData: any, upMachine: StateMachine, stateDataMap: Map<string, any>, stateMap: Map<string, State>, paramMap: Map<string, ParamItem>) {
+        upData.subStates.forEach((name: string) => {
+            let state = new State(upMachine, false);
+            stateMap.set(name, state);
+            let data = stateDataMap.get(name);
+            state.setPosition(data.position[0], data.position[1]);
+            state.name = data.state;
+            state.motion = data.motion;
+            state.speed = data.speed;
+            state.multiplierParam = paramMap.get(data.multiplier) || null;
+            state.loop = data.loop;
+
+            upMachine.add(state);
+        });
+    }
+
+    private importSubMachine(upData: any, upMachine: StateMachine, subMachineDataMap: Map<string, any>, subMachineMap: Map<string, StateMachine>, stateDataMap: Map<string, any>, stateMap: Map<string, State>, paramMap: Map<string, ParamItem>) {
+        upData.subStateMachines.forEach((name: string) => {
+            let stateMachine = new StateMachine(upMachine);
+            subMachineMap.set(name, stateMachine);
+            let data = subMachineDataMap.get(name);
+            stateMachine.setLayerPos(data.layerPos[0], data.layerPos[1]);
+            stateMachine.setLayerScale(data.layerScale);
+            stateMachine.setAnyStatePos(data.anyStatePos[0], data.anyStatePos[1]);
+            stateMachine.name = data.name;
+            stateMachine.setPosition(data.position[0], data.position[1]);
+            stateMachine.setUpStateMachinePos(data.upStateMachinePos[0], data.upStateMachinePos[1]);
+
+            upMachine.add(stateMachine);
+
+            this.importSubState(data, stateMachine, stateDataMap, stateMap, paramMap);
+            this.importSubMachine(data, stateMachine, subMachineDataMap, subMachineMap, stateDataMap, stateMap, paramMap);
+        });
+    }
+
+    private exportAllSubMachine(arr: any[], stateMachine: StateMachine) {
+        stateMachine.subStateMachines.forEach((sub) => {
+            let data = {
+                layerPos: [sub.layerPos.x, sub.layerPos.y],
+                layerScale: sub.layerScale,
+                anyStatePos: [sub.anyStatePos.x, sub.anyStatePos.y],
+                name: sub.name,
+                position: [sub.position.x, sub.position.y],
+                upStateMachine: sub.upStateMachine.name,
+                upStateMachinePos: [sub.upStateMachinePos.x, sub.upStateMachinePos.y],
+                subStates: [],
+                subStateMachines: [],
+            }
+            sub.subStates.forEach((e) => {
+                data.subStates.push(e.name);
+            });
+            sub.subStateMachines.forEach((e) => {
+                data.subStateMachines.push(e.name);
+            });
+            arr.push(data);
+            this.exportAllSubMachine(arr, sub);
+        });
+    }
+
+    private exportAllState(arr: any[], stateMachine: StateMachine, isRuntimeData: boolean = false) {
+        stateMachine.subStates.forEach((e) => {
+            let data = null;
+            if (isRuntimeData) {
+                data = {
+                    state: e.name,
+                    motion: e.motion,
+                    speed: e.speed,
+                    multiplier: e.getMultiplierName(),
+                    loop: e.loop,
+                    transitions: e.getAllTransitionData()
+                }
+            } else {
+                data = {
+                    position: [e.position.x, e.position.y],
+                    upStateMachine: e.upStateMachine.name,
+                    state: e.name,
+                    motion: e.motion,
+                    speed: e.speed,
+                    multiplier: e.getMultiplierName(),
+                    loop: e.loop,
+                    transitions: e.getAllTransitionData()
+                }
+            }
+            arr.push(data);
+        });
+        stateMachine.subStateMachines.forEach((sub) => {
+            this.exportAllState(arr, sub);
+        });
+    }
+
+    /**
+     * 导入工程数据
+     */
+    public importProject(data: any) {
+        let paramMap: Map<string, ParamItem> = Editor.Inst.Parameters.getParamMap();
+
+        let mainStateMachineData = data.mainStateMachine;
+        let subStateMachinesData = data.subStateMachines;
+        let defaultStateData: string = data.defaultState;
+        let anyStateData = data.anyState;
+        let statesData = data.states;
+
+        let stateDataMap: Map<string, any> = new Map();
+        statesData.forEach((e: any) => { stateDataMap.set(e.state, e); });
+        let stateMap: Map<string, State> = new Map();
+
+        let subMachineDataMap: Map<string, any> = new Map();
+        subStateMachinesData.forEach((e: any) => { subMachineDataMap.set(e.name, e) });
+        let subMachineMap: Map<string, StateMachine> = new Map();
+
+        let main = this.MachineLayer.mainStateMachine;
+        main.setLayerPos(mainStateMachineData.layerPos[0], mainStateMachineData.layerPos[1]);
+        main.setLayerScale(mainStateMachineData.layerScale);
+        main.setAnyStatePos(mainStateMachineData.anyStatePos[0], mainStateMachineData.anyStatePos[1]);
+        this.importSubState(mainStateMachineData, main, stateDataMap, stateMap, paramMap);
+        this.importSubMachine(mainStateMachineData, main, subMachineDataMap, subMachineMap, stateDataMap, stateMap, paramMap);
+
+        if (stateMap.has(defaultStateData))
+            this.MachineLayer.defaultState = stateMap.get(defaultStateData);
+
+        this.importTransitions(anyStateData.transitions, this.MachineLayer.anyState.state, stateMap, paramMap);
+        statesData.forEach((e: any) => {
+            let state: State = stateMap.get(e.state);
+            if (!state) {
+                cc.error('error');
+            }
+            this.importTransitions(e.transitions, state, stateMap, paramMap);
+        });
+
+        this.MachineLayer.setCurStateMachine();
+    }
+
+    /**
+     * 导入cocos animation文件
+     */
+    public importAnim(animData: any) {
+        let x = Tool.randFloat(-this.MachineLayer.node.x - 100, -this.MachineLayer.node.x + 100);
+        let y = Tool.randFloat(-this.MachineLayer.node.y - 100, -this.MachineLayer.node.y + 100);
+        let unitState = this.MachineLayer.createState(cc.v2(x, y));
+        let state: State = unitState.state;
+        state.name = animData._name;
+        state.motion = animData._name;
+        state.speed = animData.speed;
+        state.loop = animData.wrapMode === cc.WrapMode.Loop;
+    }
+
+    /**
+     * 导入spine json文件
+     */
+    public improtSpine(spineData: any) {
+        for (let name in spineData.animations) {
+            let x = Tool.randFloat(-this.MachineLayer.node.x - 100, -this.MachineLayer.node.x + 100);
+            let y = Tool.randFloat(-this.MachineLayer.node.y - 100, -this.MachineLayer.node.y + 100);
+            let unitState = this.MachineLayer.createState(cc.v2(x, y));
+            let state: State = unitState.state;
+            state.name = name;
+            state.motion = name;
+        }
+    }
+
+    /**
+     * 导入dragonbones json文件
+     */
+    public importDragonBones(data: any) {
+        data.armature.forEach((e) => {
+            e.animation.forEach((anim) => {
+                let x = Tool.randFloat(-this.MachineLayer.node.x - 100, -this.MachineLayer.node.x + 100);
+                let y = Tool.randFloat(-this.MachineLayer.node.y - 100, -this.MachineLayer.node.y + 100);
+                let unitState = this.MachineLayer.createState(cc.v2(x, y));
+                let state: State = unitState.state;
+                state.name = anim.name;
+                state.motion = anim.name;
+                state.loop = anim.playTimes === 0;
+            });
+        });
+    }
+
+    /**
+     * 导出工程数据
+     */
+    public exportProject() {
+        let main = this.MachineLayer.mainStateMachine;
+        let animator = ANIMATOR_VERSION;
+        let mainStateMachine = {
+            layerPos: [main.layerPos.x, main.layerPos.y],
+            layerScale: main.layerScale,
+            anyStatePos: [main.anyStatePos.x, main.anyStatePos.y],
+            subStates: [],
+            subStateMachines: [],
+        };
+        main.subStates.forEach((e) => {
+            mainStateMachine.subStates.push(e.name);
+        });
+        main.subStateMachines.forEach((e) => {
+            mainStateMachine.subStateMachines.push(e.name);
+        });
+        let subStateMachines = [];
+        this.exportAllSubMachine(subStateMachines, main);
+
+        let defaultState: string = this.MachineLayer.defaultState ? this.MachineLayer.defaultState.name : '';
+        let anyState = {
+            transitions: this.MachineLayer.anyState.state.getAllTransitionData()
+        };
+        let states = [];
+        this.exportAllState(states, main);
+        return {
+            animator: animator,
+            mainStateMachine: mainStateMachine,
+            subStateMachines: subStateMachines,
+            defaultState: defaultState,
+            anyState: anyState,
+            states: states
+        };
+    }
+
+    /**
+     * 导出runtime数据
+     */
+    public exportRuntimeData() {
+        let main = this.MachineLayer.mainStateMachine;
+        let defaultState: string = this.MachineLayer.defaultState ? this.MachineLayer.defaultState.name : '';
+        let anyState = {
+            transitions: this.MachineLayer.anyState.state.getAllTransitionData()
+        };
+        let states = [];
+        this.exportAllState(states, main, true);
+        return {
+            defaultState: defaultState,
+            anyState: anyState,
+            states: states
+        };
     }
     //#endregion
 }

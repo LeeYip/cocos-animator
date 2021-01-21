@@ -1,6 +1,7 @@
 import Events, { EventName, preloadEvent } from "../../common/util/Events";
 import RecyclePool from "../../common/util/RecyclePool";
 import Res from "../../common/util/Res";
+import Tool from "../../common/util/Tool";
 import { ParameterData } from "../../constant/BaseConst";
 import { ResUrl } from "../../constant/ResUrl";
 import ParamItem from "./ParamItem";
@@ -73,6 +74,7 @@ export default class ParamCtr extends cc.Component {
         let prefab = Res.getLoaded(ResUrl.PREFAB.PARAM_ITEM);
         let node: cc.Node = RecyclePool.get(ParamItem) || cc.instantiate(prefab);
         node.width = this.ParamContent.width;
+        Tool.updateWidget(node);
         return node;
     }
 
@@ -146,8 +148,11 @@ export default class ParamCtr extends cc.Component {
         if (node !== this.node) {
             return;
         }
+
+        Tool.updateWidget(this.node, this.ParamContent);
         this.ParamContent.children.forEach((e) => {
             e.width = this.ParamContent.width;
+            Tool.updateWidget(e);
         });
     }
 }

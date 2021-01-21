@@ -105,4 +105,20 @@ export default class Tool {
         arr.splice(idx, 1);
         return true
     }
+
+    /**
+     * 递归遍历所有子节点并更新widget组件
+     * @param node 目标节点，需遍历其子节点
+     * @param ignoreList 忽略节点，这些节点的子节点跳过遍历
+     */
+    public static updateWidget(node: cc.Node, ...ignoreList: cc.Node[]) {
+        node.children.forEach((c) => {
+            let widget = c.getComponent(cc.Widget);
+            widget && widget.updateAlignment();
+            if (this.arrayHas(ignoreList, c)) {
+                return;
+            }
+            this.updateWidget(c, ...ignoreList);
+        });
+    }
 }

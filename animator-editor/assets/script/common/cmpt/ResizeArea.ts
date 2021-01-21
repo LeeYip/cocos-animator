@@ -1,4 +1,6 @@
+import Setting from "../../editor/Setting";
 import Events, { EventName } from "../util/Events";
+import Tool from "../util/Tool";
 
 const { ccclass, property } = cc._decorator;
 
@@ -36,7 +38,7 @@ export default class ResizeArea extends cc.Component {
         this.Target.updateAlignment();
 
         Events.emit(EventName.RESIZE, this.Target.node);
-        this.updateWidget(this.Target.node);
+        Setting.save();
     }
 
     private onTouchStart(event: cc.Event.EventTouch) {
@@ -60,13 +62,5 @@ export default class ResizeArea extends cc.Component {
 
     private onMouseLeave(event: cc.Event.EventMouse) {
         this._canvas.style.cursor = 'default ';
-    }
-
-    private updateWidget(node: cc.Node) {
-        node.children.forEach((c) => {
-            let widget = c.getComponent(cc.Widget);
-            widget && widget.updateAlignment();
-            this.updateWidget(c);
-        });
     }
 }

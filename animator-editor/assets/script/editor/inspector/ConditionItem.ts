@@ -128,15 +128,14 @@ export default class ConditionItem extends cc.Component implements RecycleNode {
 
     private onClickParamSelect(event: cc.Event) {
         let target: cc.Node = event.target;
-        let worldPos: cc.Vec2 = target.parent.convertToWorldSpaceAR(target.position.sub(cc.v2(0, 0)));
-        Events.emit(EventName.SHOW_PARAM_SELECT, worldPos, 30, this);
+        Events.emit(EventName.SHOW_PARAM_SELECT, target, this);
         this._hasInit && Events.emit(EventName.CONDITION_SELECT, this);
     }
 
     private onClickLogicSelect(event: cc.Event) {
         let target: cc.Node = event.target;
         let worldPos: cc.Vec2 = target.parent.convertToWorldSpaceAR(target.position.sub(cc.v2(0, 0)));
-        Events.emit(EventName.SHOW_LOGIC, worldPos, 30, this);
+        Events.emit(EventName.SHOW_LOGIC, worldPos, target.height, this);
         this._hasInit && Events.emit(EventName.CONDITION_SELECT, this);
     }
 

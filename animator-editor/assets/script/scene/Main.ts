@@ -6,7 +6,7 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Main extends cc.Component {
-    private _editorNode: cc.Node = null;
+    private _editor: Editor = null;
 
     protected onLoad() {
         cc.debug.setDisplayStats(false);
@@ -22,17 +22,16 @@ export default class Main extends cc.Component {
         this.dragOn();
     }
 
-    private resetEditor(): Editor {
-        if (this._editorNode) {
-            this._editorNode.getComponent(Editor).Fsm.MachineLayer.clear();
-            this._editorNode.removeFromParent();
-            this._editorNode.destroy();
+    private resetEditor() {
+        if (this._editor) {
+            this._editor.Fsm.MachineLayer.clear();
+            this._editor.node.removeFromParent();
+            this._editor.node.destroy();
         }
-        this._editorNode = cc.instantiate(Res.getLoaded(ResUrl.PREFAB.EDITOR));
-        this.node.addChild(this._editorNode);
-        let editor = this._editorNode.getComponent(Editor);
-        Editor.Inst = editor;
-        return editor;
+        let node = cc.instantiate(Res.getLoaded(ResUrl.PREFAB.EDITOR));
+        this._editor = node.getComponent(Editor);
+        Editor.Inst = this._editor;
+        this.node.addChild(node);
     }
 
     /**
@@ -63,25 +62,58 @@ export default class Main extends cc.Component {
             e.stopPropagation();
             // 处理拖拽文件的逻辑
             let files = e.dataTransfer.files;
-            let reg = /\.json$/;
-            if (!reg.test(files[0].name)) {
-                return;
-            }
-            this.readProject(files[0]);
+            this.readFiles(files);
         }, false);
     }
 
     /**
-     * 读取工程文件
+     * 文件读取
      */
-    private readProject(file: File) {
+    private readFiles(files: FileList) {
+        for (let i = 0; i < files.length; i++) {
+            let file: File = files[i];
+            if (/\.json$/.test(file.name)) {
+                this.readJson(file);
+            } else if (/\.anim$/.test(file.name)) {
+                this.readAnim(file);
+            }
+        }
+    }
+
+    /**
+     * 读取.json文件
+     */
+    private readJson(file: File) {
         let fileReader = new FileReader();
         fileReader.readAsText(file);
         fileReader.onload = () => {
             cc.log(fileReader.result);
+            let data: any = JSON.parse(fileReader.result as string);
+            if (data.animator) {
+                // 读取状态机工程文件
+                this.resetEditor();
+                this._editor.Parameters.import(data.parameters);
+                this._editor.Fsm.importProject(data);
+            } else if (data.skeleton && data.animations) {
+                // 读取spine文件
+                this._editor.Fsm.improtSpine(data);
+            } else if (data.armature) {
+                // 读取龙骨文件
+                this._editor.Fsm.importDragonBones(data);
+            }
+        };
+    }
 
-            let editor = this.resetEditor();
-            editor.importProject(JSON.parse(fileReader.result as string));
+    /**
+     * 读取cocos .anim文件
+     */
+    private readAnim(file: File) {
+        let fileReader = new FileReader();
+        fileReader.readAsText(file);
+        fileReader.onload = () => {
+            cc.log(fileReader.result);
+            let data: any = JSON.parse(fileReader.result as string);
+            this._editor.Fsm.importAnim(data);
         };
     }
 }

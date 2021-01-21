@@ -1,6 +1,7 @@
 import Events, { EventName, preloadEvent } from "../../common/util/Events";
 import RecyclePool from "../../common/util/RecyclePool";
 import Res from "../../common/util/Res";
+import Tool from "../../common/util/Tool";
 import { ParamType } from "../../constant/BaseConst";
 import { ResUrl } from "../../constant/ResUrl";
 import State from "../data/State";
@@ -134,7 +135,13 @@ export default class Menu extends cc.Component {
         let num = cc.misc.clampf(this.LineToSubList.content.childrenCount, 1, 10);
         this.LineToSubList.node.height = 40 * num + 20;
         this.LineToSubList.content.parent.height = 40 * num + 20;
-        this.LineToSubList.node.getChildByName('scrollBar').getComponent(cc.Widget).updateAlignment();
+        if (this.LineToSubList.content.childrenCount > 10) {
+            this.LineToSubList.node.getChildByName('scrollBar').active = true;
+            this.LineToSubList.node.getChildByName('scrollBar').getComponent(cc.Widget).updateAlignment();
+        } else {
+            this.LineToSubList.node.getChildByName('scrollBar').active = false;
+        }
+        
         // 设置坐标
         let pos = this.node.convertToNodeSpaceAR(worldPos);
         let x = pos.x;
@@ -143,9 +150,11 @@ export default class Menu extends cc.Component {
     }
 
     @preloadEvent(EventName.SHOW_MULTIPLIER)
-    private onEventShowMultiplierSelect(worldPos: cc.Vec2) {
+    private onEventShowMultiplierSelect(target: cc.Node) {
         this.show(this.MultiplierList.node);
 
+        let worldPos = target.parent.convertToWorldSpaceAR(target.position);
+        worldPos.y -= target.height / 2;
         this.MultiplierList.node.position = this.node.convertToNodeSpaceAR(worldPos);
         for (let i = this.MultiplierList.content.childrenCount - 1; i >= 0; i--) {
             RecyclePool.put(MultiplierItem, this.MultiplierList.content.children[i]);
@@ -153,19 +162,24 @@ export default class Menu extends cc.Component {
         let node: cc.Node = RecyclePool.get(MultiplierItem) || cc.instantiate(Res.getLoaded(ResUrl.PREFAB.MULTIPLIER_ITEM));
         this.MultiplierList.content.addChild(node);
         node.getComponent(MultiplierItem).onInit();
-        Editor.Inst.ParamCtr.ParamContent.children.forEach((e) => {
+        node.width = target.width;
+        Editor.Inst.Parameters.ParamContent.children.forEach((e) => {
             let paramItem = e.getComponent(ParamItem);
             if (paramItem.type !== ParamType.NUMBER) {
                 return;
             }
-            let node: cc.Node = RecyclePool.get(MultiplierItem) || cc.instantiate(Res.getLoaded(ResUrl.PREFAB.MULTIPLIER_ITEM));
+            node = RecyclePool.get(MultiplierItem) || cc.instantiate(Res.getLoaded(ResUrl.PREFAB.MULTIPLIER_ITEM));
             this.MultiplierList.content.addChild(node);
             node.getComponent(MultiplierItem).onInit(paramItem);
+            node.width = target.width;
         });
+
         let num = cc.misc.clampf(this.MultiplierList.content.childrenCount, 1, 10);
         this.MultiplierList.node.height = 40 * num + 20;
         this.MultiplierList.content.parent.height = 40 * num + 20;
-        this.MultiplierList.node.getChildByName('scrollBar').getComponent(cc.Widget).updateAlignment();
+        this.MultiplierList.node.width = target.width;
+        Tool.updateWidget(this.MultiplierList.node);
+        this.MultiplierList.node.getChildByName('scrollBar').active = this.MultiplierList.content.childrenCount > 10;
     }
 
     @preloadEvent(EventName.SHOW_PARAM_ADD)
@@ -176,27 +190,31 @@ export default class Menu extends cc.Component {
     }
 
     @preloadEvent(EventName.SHOW_PARAM_SELECT)
-    private onEventShowParamSelect(worldPos: cc.Vec2, targetHeight: number, conditionItem: ConditionItem) {
+    private onEventShowParamSelect(target: cc.Node, conditionItem: ConditionItem) {
         this.show(this.ParamSelect.node);
 
+        let worldPos: cc.Vec2 = target.parent.convertToWorldSpaceAR(target.position.sub(cc.v2(0, 0)));
         for (let i = this.ParamSelect.content.childrenCount - 1; i >= 0; i--) {
             RecyclePool.put(ParamSelectItem, this.ParamSelect.content.children[i]);
         }
         // 生成item
-        Editor.Inst.ParamCtr.ParamContent.children.forEach((e) => {
+        Editor.Inst.Parameters.ParamContent.children.forEach((e) => {
             let node: cc.Node = RecyclePool.get(ParamSelectItem) || cc.instantiate(Res.getLoaded(ResUrl.PREFAB.PARAM_SELECT_ITEM));
             this.ParamSelect.content.addChild(node);
             node.getComponent(ParamSelectItem).onInit(e.getComponent(ParamItem), conditionItem);
+            node.width = target.width;
         });
 
         let num = cc.misc.clampf(this.ParamSelect.content.childrenCount, 1, 10);
         this.ParamSelect.node.height = 40 * num + 10;
         this.ParamSelect.content.parent.height = 40 * num + 10;
-        this.ParamSelect.node.getChildByName('scrollBar').getComponent(cc.Widget).updateAlignment();
-        if (worldPos.y - targetHeight / 2 - this.ParamSelect.node.height > 0) {
-            this.ParamSelect.node.position = this.node.convertToNodeSpaceAR(cc.v2(worldPos.x, worldPos.y - targetHeight / 2));
+        this.ParamSelect.node.width = target.width;
+        Tool.updateWidget(this.ParamSelect.node);
+        this.ParamSelect.node.getChildByName('scrollBar').active = this.ParamSelect.content.childrenCount > 10;
+        if (worldPos.y - target.height / 2 - this.ParamSelect.node.height > 0) {
+            this.ParamSelect.node.position = this.node.convertToNodeSpaceAR(cc.v2(worldPos.x, worldPos.y - target.height / 2));
         } else {
-            this.ParamSelect.node.position = this.node.convertToNodeSpaceAR(cc.v2(worldPos.x, worldPos.y + targetHeight / 2 + this.ParamSelect.node.height));
+            this.ParamSelect.node.position = this.node.convertToNodeSpaceAR(cc.v2(worldPos.x, worldPos.y + target.height / 2 + this.ParamSelect.node.height));
         }
     }
 

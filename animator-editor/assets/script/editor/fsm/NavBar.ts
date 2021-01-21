@@ -18,6 +18,7 @@ export default class NavBar extends cc.Component {
     protected onLoad() {
         this._widget = this.getComponent(cc.Widget);
         this._contentWidget = this.Content.getComponent(cc.Widget);
+        this.onEventResize();
         Events.targetOn(this);
     }
 
@@ -43,8 +44,8 @@ export default class NavBar extends cc.Component {
     }
 
     @preloadEvent(EventName.RESIZE)
-    private onEventResize(node: cc.Node) {
-        this._widget.left = Editor.Inst.ParamCtr.node.width;
+    private onEventResize(node?: cc.Node) {
+        this._widget.left = Editor.Inst.Parameters.node.width;
         this._widget.right = Editor.Inst.Inspector.node.width;
         this._widget.updateAlignment();
         this._contentWidget.updateAlignment();

@@ -12,6 +12,9 @@ import UnitStateMachine from "./UnitStateMachine";
 
 const { ccclass, property } = cc._decorator;
 
+/** 状态机视图界面边长 */
+const LEN = 9000;
+
 @ccclass
 export default class MachineLayer extends cc.Component {
     @property(cc.Node) Grid: cc.Node = null;
@@ -36,11 +39,11 @@ export default class MachineLayer extends cc.Component {
     private _upUnit: UnitStateMachine = null;
 
     protected onLoad() {
-        this.node.setContentSize(6750, 6750);
-        this.Grid.setContentSize(6750, 6750);
+        this.node.setContentSize(LEN, LEN);
+        this.Grid.setContentSize(LEN, LEN);
         this._mainStateMachine = new StateMachine(null);
         this._curStateMachine = this._mainStateMachine;
-        this._anyState = this.createState(cc.v2(-360, 300), true);
+        this._anyState = this.createState(cc.v2(-300, 300), true);
         this._curStateMachine.setAnyStatePos(this._anyState.node.position);
 
         this.NavBar.refreshBar([this._mainStateMachine]);
@@ -121,7 +124,7 @@ export default class MachineLayer extends cc.Component {
             node.destroy();
         }
 
-        // 生成状态机、状态、连线节点
+        // 生成状态、状态机节点
         let stateMap: Map<State, UnitState> = new Map();
         let machineMap: Map<StateMachine, UnitStateMachine> = new Map();
         this._upUnit && machineMap.set(stateMachine.upStateMachine, this._upUnit);
@@ -154,7 +157,7 @@ export default class MachineLayer extends cc.Component {
             }
             machineMap.set(e, unitStateMachine);
         });
-
+        // 生成连线节点
         let stateKeys = stateMap.keys();
         for (let i = 0; i < stateMap.size; i++) {
             let state: State = stateKeys.next().value;
