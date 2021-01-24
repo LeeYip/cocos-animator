@@ -94,7 +94,7 @@ export default class Main extends cc.Component {
                 this.resetEditor();
                 this._editor.Parameters.import(data.parameters);
                 this._editor.Fsm.importProject(data);
-            } else if (data.skeleton && data.animations) {
+            } else if (data.animations) {
                 // 读取spine文件
                 this._editor.Fsm.improtSpine(data);
             } else if (data.armature) {

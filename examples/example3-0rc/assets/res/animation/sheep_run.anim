@@ -1,0 +1,56 @@
+[
+  {
+    "__type__": "cc.AnimationClip",
+    "_name": "sheep_run",
+    "_objFlags": 0,
+    "_native": "",
+    "sample": 60,
+    "speed": 1,
+    "wrapMode": 0,
+    "events": [],
+    "_duration": 0.26666666666666666,
+    "_keys": [
+      [
+        0,
+        0.08333333333333333,
+        0.16666666666666666,
+        0.25
+      ]
+    ],
+    "_stepness": 0,
+    "_curves": [
+      {
+        "modifiers": [
+          {
+            "__id__": 1
+          },
+          "spriteFrame"
+        ],
+        "data": {
+          "keys": 0,
+          "values": [
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@e0c75"
+            },
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@6a8f4"
+            },
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@07ea9"
+            },
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@e0c75"
+            }
+          ],
+          "easingMethods": {}
+        }
+      }
+    ],
+    "_commonTargets": [],
+    "_hash": 1187270062
+  },
+  {
+    "__type__": "cc.animation.ComponentPath",
+    "component": "cc.Sprite"
+  }
+]

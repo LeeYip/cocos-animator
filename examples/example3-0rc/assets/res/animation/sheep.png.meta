@@ -1,0 +1,68 @@
+{
+  "ver": "1.0.21",
+  "importer": "image",
+  "imported": true,
+  "uuid": "83e05166-d611-452a-ac2f-4cbf5c3d5a06",
+  "files": [
+    ".png",
+    ".json"
+  ],
+  "subMetas": {
+    "sheep": {
+      "ver": "1.0.4",
+      "uuid": "aaf71854-d55f-43e8-92aa-ec6c71177195",
+      "rawTextureUuid": "83e05166-d611-452a-ac2f-4cbf5c3d5a06",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -1,
+      "offsetY": 203,
+      "trimX": 2,
+      "trimY": 2,
+      "width": 506,
+      "height": 614,
+      "rawWidth": 512,
+      "rawHeight": 1024,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {},
+      "importer": "*",
+      "imported": false,
+      "files": [],
+      "userData": {},
+      "displayName": "",
+      "id": "",
+      "name": ""
+    },
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "83e05166-d611-452a-ac2f-4cbf5c3d5a06@6c48a",
+      "displayName": "sheep",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 1,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "83e05166-d611-452a-ac2f-4cbf5c3d5a06"
+      },
+      "ver": "1.0.20",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "hasAlpha": true,
+    "type": "texture",
+    "redirect": "83e05166-d611-452a-ac2f-4cbf5c3d5a06@6c48a"
+  }
+}

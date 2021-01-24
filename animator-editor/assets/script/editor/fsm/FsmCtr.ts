@@ -553,14 +553,32 @@ export default class FsmCtr extends cc.Component {
      * 导入cocos animation文件
      */
     public importAnim(animData: any) {
-        let x = Tool.randFloat(-this.MachineLayer.node.x - 100, -this.MachineLayer.node.x + 100);
-        let y = Tool.randFloat(-this.MachineLayer.node.y - 100, -this.MachineLayer.node.y + 100);
-        let unitState = this.MachineLayer.createState(cc.v2(x, y));
-        let state: State = unitState.state;
-        state.name = animData._name;
-        state.motion = animData._name;
-        state.speed = animData.speed;
-        state.loop = animData.wrapMode === cc.WrapMode.Loop;
+        if (animData instanceof Array) {
+            // 3.0 anim文件
+            animData.forEach((data) => {
+                if (!data.hasOwnProperty('_name')) {
+                    return;
+                }
+                let x = Tool.randFloat(-this.MachineLayer.node.x - 100, -this.MachineLayer.node.x + 100);
+                let y = Tool.randFloat(-this.MachineLayer.node.y - 100, -this.MachineLayer.node.y + 100);
+                let unitState = this.MachineLayer.createState(cc.v2(x, y));
+                let state: State = unitState.state;
+                state.name = data._name;
+                state.motion = data._name;
+                state.speed = data.speed;
+                state.loop = data.wrapMode === cc.WrapMode.Loop;
+            });
+        } else {
+            // 2.x anim文件
+            let x = Tool.randFloat(-this.MachineLayer.node.x - 100, -this.MachineLayer.node.x + 100);
+            let y = Tool.randFloat(-this.MachineLayer.node.y - 100, -this.MachineLayer.node.y + 100);
+            let unitState = this.MachineLayer.createState(cc.v2(x, y));
+            let state: State = unitState.state;
+            state.name = animData._name;
+            state.motion = animData._name;
+            state.speed = animData.speed;
+            state.loop = animData.wrapMode === cc.WrapMode.Loop;
+        }
     }
 
     /**

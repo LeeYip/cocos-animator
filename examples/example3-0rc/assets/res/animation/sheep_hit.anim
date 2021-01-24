@@ -1,0 +1,56 @@
+[
+  {
+    "__type__": "cc.AnimationClip",
+    "_name": "sheep_hit",
+    "_objFlags": 0,
+    "_native": "",
+    "sample": 60,
+    "speed": 1,
+    "wrapMode": 1,
+    "events": [],
+    "_duration": 0.5166666666666667,
+    "_keys": [
+      [
+        0,
+        0.16666666666666666,
+        0.3333333333333333,
+        0.5
+      ]
+    ],
+    "_stepness": 0,
+    "_curves": [
+      {
+        "modifiers": [
+          {
+            "__id__": 1
+          },
+          "spriteFrame"
+        ],
+        "data": {
+          "keys": 0,
+          "values": [
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@c6353"
+            },
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@7cc6b"
+            },
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@d1ecf"
+            },
+            {
+              "__uuid__": "efc1bbab-8753-4506-859f-0558eb86db31@acab0"
+            }
+          ],
+          "easingMethods": {}
+        }
+      }
+    ],
+    "_commonTargets": [],
+    "_hash": 0
+  },
+  {
+    "__type__": "cc.animation.ComponentPath",
+    "component": "cc.Sprite"
+  }
+]
