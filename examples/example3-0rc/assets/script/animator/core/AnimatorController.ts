@@ -42,13 +42,11 @@ export default class AnimatorController {
             return;
         }
 
-        let defaultState: string = json.defaultState;
         this._anyState = new AnimatorState(json.anyState, this);
         for (let i = 0; i < json.states.length; i++) {
             let state: AnimatorState = new AnimatorState(json.states[i], this);
             this._states.set(state.name, state);
         }
-        this.changeState(defaultState);
     }
 
     private updateState() {

@@ -122,6 +122,8 @@ export default class AnimatorBase extends Component {
      */
     protected initJson(json: any) {
         this._ac = new AnimatorController(this, json);
+        // 执行默认状态
+        this._ac.changeState(json.defaultState);
     }
 
     /**
