@@ -80,17 +80,20 @@ export default class AnimatorController {
     }
 
     /**
-     * 无视条件直接跳转状态
+     * 无视条件直接跳转状态，如果当前已处于此状态则重置状态
      * @param 状态名
      */
     public play(stateName: string) {
-        if (!this._states.has(stateName) || this._curState.name === stateName) {
+        if (!this._states.has(stateName)) {
             return;
         }
 
         // 重置动画完成标记
         this.animComplete = false;
-        this.changeState(stateName);
+        let oldState = this._curState;
+        this._curState = this._states.get(stateName)!;
+        this._animator.onStateChange(oldState, this._curState);
+        this.updateState();
     }
 
     /**

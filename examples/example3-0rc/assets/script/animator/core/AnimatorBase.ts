@@ -44,14 +44,23 @@ export default class AnimatorBase extends Component {
     /** 自定义的动画播放控制器 */
     protected _animationPlayer: AnimationPlayer = null!;
 
+    protected _extraMulti: number = 1;
+    /** 统一控制所有动画播放速度的参数 */
+    public get extraMulti(): number { return this._extraMulti; }
+    public set extraMulti(v: number) {
+        if (this._extraMulti === v) {
+            return;
+        }
+        this._extraMulti = v;
+        this.updatePlaySpeed();
+    }
+
     /** 当前状态名 */
-    public get curStateName(): string {
-        return this._ac.curState.name;
-    }
+    public get curStateName(): string { return this._ac.curState.name; }
     /** 当前动画名 */
-    public get curStateMotion(): string {
-        return this._ac.curState.motion;
-    }
+    public get curStateMotion(): string { return this._ac.curState.motion; }
+    /** 当前动画是否播放完毕 */
+    public get animComplete(): boolean { return this._ac.animComplete; }
 
     /**
      * 手动初始化状态机，可传入0-3个参数，类型如下
@@ -84,13 +93,21 @@ export default class AnimatorBase extends Component {
         });
     }
 
-    private updateAnimator() {
+    /**
+     * 更新动画播放速度
+     */
+    private updatePlaySpeed() {
         // 混合当前动画播放速度
-        let playSpeed = this._ac.curState.speed;
+        let playSpeed = this._ac.curState.speed * this.extraMulti;
         if (this._ac.curState.multi) {
             playSpeed *= this._ac.params.getNumber(this._ac.curState.multi) || 1;
         }
         this.scaleTime(playSpeed);
+    }
+
+    private updateAnimator() {
+        // 更新动画播放速度
+        this.updatePlaySpeed();
 
         // 更新AnimatorStateLogic
         if (this._stateLogicMap) {
@@ -218,7 +235,7 @@ export default class AnimatorBase extends Component {
     }
 
     /**
-     * 无视条件直接跳转状态
+     * 无视条件直接跳转状态，如果当前已处于此状态则重置状态
      * @param 状态名
      */
     public play(stateName: string) {
