@@ -79,10 +79,10 @@
 
 #### <a id="editor5"></a>**数据导入与导出**
 - 导出数据
-    - **ctrl+s**--导出状态机编辑器工程文件（此文件记录了编辑器与runtime所需的所有数据，此文件必须保存好）
-    - **ctrl+e**--仅导出runtime所需的数据文件
+    - **<kbd>ctrl</kbd>+<kbd>s</kbd>**--导出状态机编辑器工程文件（此文件记录了编辑器与runtime所需的所有数据，此文件必须保存好）
+    - **<kbd>ctrl</kbd>+<kbd>e</kbd>**--仅导出runtime所需的数据文件
 - 导入数据
-    - 将ctrl+s所保存文件拖入状态机编辑器内将还原整个状态机视图
+    - 将<kbd>ctrl</kbd>+<kbd>s</kbd>所保存文件拖入状态机编辑器内将还原整个状态机视图
     - cocos creator的animation文件、spine的json文件、dragonbones的json文件均可拖入状态机编辑器内自动生成对应的状态节点
     ![image](./images/operate4.gif)
 
@@ -246,20 +246,25 @@
 ## <a id="runtime"></a>Runtime
 只要将对应版本的runtime整个文件夹丢入项目中即可使用。</br>
 core中是runtime的核心实现，而AnimatorAnimation、AnimatorSpine、AnimatorDragonBones、AnimatorCustomization是用于与节点绑定的cc.Component脚本，分别用于不同类型的动画。</br>
-- **Animator脚本组件 API**
-    - **onInit** 手动初始化状态机
-    - **manualUpdate** 手动调用更新
-    - **setBool** 设置boolean类型参数的值
-    - **getBool** 获取boolean类型参数的值
-    - **setNumber** 设置number类型参数的值
-    - **getNumber** 获取number类型参数的值
-    - **setTrigger** 设置trigger类型参数的值
-    - **resetTrigger** 重置trigger类型参数的值
-    - **autoTrigger** 设置autoTrigger类型参数的值
-    - **play** 无视条件直接跳转状态
-    - **curStateName** 当前状态名
-    - **curStateMotion** 当前动画名
 
+**Animator脚本组件 API**
+- **属性**
+    - **`extraMulti`** 统一控制所有动画播放速度的参数
+    - **`curStateName`** 当前状态名
+    - **`curStateMotion`** 当前动画名
+    - **`animComplete`** 当前动画是否播放完毕
+
+- **方法**
+    - **`onInit`** 手动初始化状态机
+    - **`manualUpdate`** 手动调用更新
+    - **`setBool`** 设置boolean类型参数的值
+    - **`getBool`** 获取boolean类型参数的值
+    - **`setNumber`** 设置number类型参数的值
+    - **`getNumber`** 获取number类型参数的值
+    - **`setTrigger`** 设置trigger类型参数的值
+    - **`resetTrigger`** 重置trigger类型参数的值
+    - **`autoTrigger`** 设置autoTrigger类型参数的值
+    - **`play`** 无视条件直接跳转状态，如果当前已处于此状态则重置状态
 
 ## <a id="example"></a>Example
 ![image](./images/runtime1.png)</br>
